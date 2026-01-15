@@ -60,17 +60,17 @@ settings:
 
   schedule:
     - # Week 1
-      - [ B, Ph, H, PE ]       # Mon
-      - [ Ch, DoU, ULa, DoU2 ] # Tue
-      - [ None, FLa, FLi ]     # Wen
-      - [ B, I, G ]            # Thu
-      - [ I, ULi, M ]          # Fri
+      1: [ B, Ph, H, PE ]       # Mon
+      2: [ Ch, DoU, ULa, DoU2 ] # Tue
+      3: [ None, FLa, FLi ]     # Wen
+      4: [ B, I, G ]            # Thu
+      5: [ I, ULi, M ]          # Fri
     - # Week 2
-      - [ Ch, Ph, H, PE ]      # Mon
-      - [ Ch, DoU, ULa ]       # Tue
-      - [ H, FLa, FLi ]        # Wen
-      - [ B, I, G ]            # Thu
-      - [ I, ULi, M ]          # Fri
+      1: [ Ch, Ph, H, PE ]      # Mon
+      2: [ Ch, DoU, ULa ]       # Tue
+      3: [ H, FLa, FLi ]        # Wen
+      4: [ B, I, G ]            # Thu
+      5: [ I, ULi, M ]          # Fri
 
   academic_context:
     reference_date: "2026-01-12"
