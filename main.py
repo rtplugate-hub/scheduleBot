@@ -7,13 +7,16 @@ from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.fsm.storage.memory import MemoryStorage
 
-from app.config import tok
+from app.config import Config
 from app.handler import rout
 from app.server import rs
 
+config = Config("config.yaml")
+logging.info(f"BOT_TOKEN found: {config.bot_token is not None}")
+
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 
-bot = Bot(token=tok, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
+bot = Bot(token=config.bot_token, default=DefaultBotProperties(parse_mode=ParseMode.HTML))
 dp = Dispatcher(storage=MemoryStorage())
 
 dp.include_router(rout)
@@ -22,7 +25,7 @@ dp.include_router(rout)
 async def main():
     await rs()
     logging.info("start!!!")
-    await dp.start_polling(bot)
+    await dp.start_polling(bot, config=config)
 
 
 if __name__ == '__main__':

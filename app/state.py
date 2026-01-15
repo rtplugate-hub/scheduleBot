@@ -1,5 +1,9 @@
+from dataclasses import dataclass
+import logging
+
 from aiogram.fsm.state import State, StatesGroup
 
+
+@dataclass
 class Mode(StatesGroup):
-    week1 = State()
-    week2 = State()
+    main: State = State()

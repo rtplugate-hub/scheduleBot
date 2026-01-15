@@ -1,77 +1,46 @@
-import json
-import datetime
+from datetime import datetime
 import logging
-from app.config import time, days, nameDays
+
+from aiogram.fsm.context import FSMContext
+
+from app.config import Config
 
 
+async def create_msg(config: Config, state: FSMContext, day_idx: int = None, target_date: datetime = None):
+    now = target_date or datetime.now(config.tz)
 
+    if day_idx is None:
+        day_idx = now.weekday()
 
+    week = config.get_week_for_date(now)
 
+    day_name = config.days[day_idx]
+    day_str = now.strftime("%d.%m")
 
-# 1
-def getJson():
+    header = f"<b>📅 {day_name} ({day_str})</b>\n"
+    header += f"<i>Тиждень {week}</i>"
+
+    if day_idx > 4:
+        return f"{header}\n\n<b>Вихідний! Пар немає</b>"
+
     try:
-        with open('config.json', 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        return {}
+        day_schedule = config.settings.schedule[week - 1][day_idx]
+    except IndexError:
+        return f"{header}\n\nПомилка: Розклад не знайдено."
 
-# 2
-def checkWeek(target):
-    data = getJson()
-    if not data: return "week1"
-    
-    sets = data.get('settings', {})
-    aDate = sets.get('date', '12.01.2026')
-    aWeek = sets.get('week', 'week2')
-    aDay = sets.get('day', 'day1')
-    
-    off = int(aDay.replace("day", "")) - 1
-    dates = datetime.datetime.strptime(aDate, "%d.%m.%Y").date()
-    
-    base = dates - datetime.timedelta(days=off)
-    targ = target - datetime.timedelta(days=target.weekday())
-    
-    
-    diff = (targ - base).days
-    
-    if diff % 2 == 0:
-        return aWeek
-    else:
+    lesson_rows = []
+    for i, code in enumerate(day_schedule):
+        if not code or code == "None":
+            continue
 
-        return "week2" if aWeek == "week1" else "week1"
+        subject = config.settings.subjects.get(code)
+        lesson_time = config.settings.time[i] if i < len(config.settings.time) else "--:--"
 
+        if subject:
+            row = f"<b>{i + 1}. [{lesson_time}] <a href='{subject.link}'>{subject.name}</a></b>"
+            lesson_rows.append(row)
 
+    if not lesson_rows:
+        return f"{header}\n\nСьогодні пар немає, відпочивай!"
 
-
-# 3
-def createMsg(week, idx, dates):
-    data = getJson()
-    key = days.get(idx)
-
-    name = nameDays[idx]
-    dStr = dates.strftime("%d.%m")
-    
-    head = f"<b>{name} ({dStr})</b>"
-
-    if not key or key not in data.get(week, {}):
-        return f"{head}\n\nНемає пар"
-
-    lessons = data[week][key]
-    if not lessons:
-        return f"{head}\n\nНемає пар"
-
-    lst = [head]
-    sortKeys = sorted(lessons.keys(), key=lambda x: int(x))
-    
-    for n in sortKeys:
-        info = lessons[n]
-        t = time.get(n, "")
-        subj = info.get("name", "")
-        lnk = info.get("link", "")
-        
-        blk = f"<b>{n}. [{t}] {subj}</b>\n{lnk}"
-        lst.append(blk)
-
-
-    return "\n\n".join(lst)
+    return header + "\n\n" + "\n\n".join(lesson_rows)
