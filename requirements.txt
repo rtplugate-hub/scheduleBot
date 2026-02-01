@@ -1,6 +1,0 @@
-python-dotenv
-pytz
-pyyaml
-pydantic
-aiogram>=3.0
-aiohttp
